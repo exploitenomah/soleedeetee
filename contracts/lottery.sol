@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 contract Lottery {
   address public manager;
   address payable[] public players;
+  address public winner;
 
    constructor() {
     manager = msg.sender;
@@ -22,11 +23,23 @@ contract Lottery {
     return players;
   }
 
-  function pickWinner() public {
-    require(msg.sender == manager);
-    require(players.length > 1);
+  function pickWinner() public payable restricted returns(address) {
+    require(players.length > 0);
     uint winnerIndex = random() % players.length;
     players[winnerIndex].transfer(address(this).balance);
-    players = new address payable[](0);
+    winner = players[winnerIndex];
+    return players[winnerIndex];
   }
+  
+  function resetLottery() public restricted {
+    require(msg.sender == manager);
+    players = new address payable[](0);
+    winner = address(0);
+  }
+
+  modifier restricted() {
+    require(msg.sender == manager);
+    _;
+  }
+
 }
