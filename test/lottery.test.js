@@ -27,9 +27,11 @@ describe('Lottery Contract', () => {
       await lottery.methods.enter().send({
         from: accounts[0]
       })
+      assert(false)
     } catch(err) {
       players = await lottery.methods.getPlayers().call()
       assert.ok(players.length === 0)
+      assert(err)
     }
   })
 
@@ -39,10 +41,12 @@ describe('Lottery Contract', () => {
       await lottery.methods.enter().send({ 
         from: accounts[0],
         value: web3Instance.utils.toWei('0.001', 'ether'),})
+        assert(false)
     } catch(err){
       let players = await lottery.methods.getPlayers().call()
       console.log(players, players.length)
       assert.ok(players.length === 0)
+      assert(err)
     }  
   })
 
@@ -55,6 +59,55 @@ describe('Lottery Contract', () => {
     console.log(players, players.length)
     assert.equal(1, players.length)
     assert.equal(accounts[0], players[0])
+  })
+
+  it('does not allow non manager account to pick winner', async () => {
+    try{
+      await lottery.methods.enter().send({
+        from: accounts[0],
+        value: web3Instance.utils.toWei('0.011', 'ether')
+      })
+      await lottery.methods.pickWinner().send({
+        from: accounts[1]
+      })
+      assert(false)
+    }catch(err) {
+      assert(err)
+    }
+  })
+
+  it('allows only manager to pick winner', async () => {
+    await lottery.methods.enter().send({
+      from: accounts[0],
+      value: web3Instance.utils.toWei('2', 'ether')
+    })
+    await lottery.methods.pickWinner().send({
+      from: accounts[0],
+    })
+    let winner = await lottery.methods.winner().call()
+    assert.equal(winner, accounts[0])
+  })
+
+  it('cannot be reset by non manager', async () => {
+    try{
+      await lottery.methods.resetLottery().send({
+        from: accounts[1]
+      })
+      assert(false)
+    }catch(err) {
+      assert(err)
+    }
+  })
+
+  it('can be reset manager only', async () => {
+    try{
+      await lottery.methods.resetLottery().send({
+        from: accounts[0]
+      })
+      assert(true)
+    }catch(err) {
+      assert(!err)
+    }
   })
 })
 
