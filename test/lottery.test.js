@@ -76,16 +76,19 @@ describe('Lottery Contract', () => {
     }
   })
 
-  it('allows only manager to pick winner', async () => {
+  it.only('allows only manager to pick winner', async () => {
     await lottery.methods.enter().send({
       from: accounts[0],
       value: web3Instance.utils.toWei('2', 'ether')
     })
+    const winnerBalAfterEnter = await web3Instance.eth.getBalance(accounts[0])
     await lottery.methods.pickWinner().send({
       from: accounts[0],
     })
+    const winnerBalAfterWin = await web3Instance.eth.getBalance(accounts[0])
     let winner = await lottery.methods.winner().call()
     assert.equal(winner, accounts[0])
+    assert(winnerBalAfterWin > winnerBalAfterEnter)
   })
 
   it('cannot be reset by non manager', async () => {
