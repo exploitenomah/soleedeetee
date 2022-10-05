@@ -1,9 +1,17 @@
-import logo from './logo.svg';
+
 import './App.css';
 import web3 from './web3';
+import { useMemo } from 'react'
+
+const fetcher = async () => {
+  const response = await fetch(process.env.REACT_APP_SERVER_URL)
+  const data = await response.json()
+  return data
+}
 
 function App() {
 
+  const contractData = useMemo(async () => await fetcher(), [])
   console.log(web3)
   return (
     <div className="App">
