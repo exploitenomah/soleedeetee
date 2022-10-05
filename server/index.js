@@ -30,6 +30,9 @@ const getLatestDeployedInterface = async () => {
 }
 const reqListener = async (req, res) => {
   if(req.method === 'GET'){
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
+    res.setHeader("Access-Control-Allow-Headers", "application/json")
     res.writeHead(200)
     res.end(JSON.stringify({ data: await getLatestDeployedInterface()}))
   }else{
